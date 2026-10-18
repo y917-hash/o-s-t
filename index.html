@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Monitor</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #f4f6f9; padding: 15px; margin: 0; }
+    .container { max-width: 800px; margin: auto; }
+    h2 { color: #333; margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 6px; overflow: hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; font-size: 14px; }
+    th { background: #007bff; color: white; }
+    .otp { background: #ffc107; padding: 3px 6px; font-weight: bold; border-radius: 4px; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📱 Live OTP Monitor</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Pengirim</th>
+          <th>Kode OTP</th>
+          <th>Pesan</th>
+        </tr>
+      </thead>
+      <tbody id="otpTable">
+        <tr id="empty"><td colspan="4" style="text-align:center; color: #777;">Menunggu SMS masuk...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const socket = io();
+    const tableBody = document.getElementById('otpTable');
+
+    socket.on('new_otp', (data) => {
+      const emptyRow = document.getElementById('empty');
+      if (emptyRow) emptyRow.remove();
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${data.time}</td>
+        <td><b>${data.sender}</b></td>
+        <td><span class="otp">${data.otpCode}</span></td>
+        <td>${data.fullText}</td>
+      `;
+      tableBody.insertBefore(row, tableBody.firstChild);
+    });
+  </script>
+</body>
+</html>
+
